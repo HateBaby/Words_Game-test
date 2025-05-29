@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어 단어 마스터</title>
+    
+    <!-- PWA 설정 -->
+    <script type="text/javascript" nonce="2845cd21ac494180ba790f6e559" src="//local.adguard.org?ts=1748501856318&amp;type=content-script&amp;dmn=s142.convertio.me&amp;url=https%3A%2F%2Fs142.convertio.me%2Fp%2Ft_c3dvuiMr98b1qPS68i_w%2Fc9c199dd2ec3de26fd82d50802a3ba5c%2FNotes_250530_062304.html&amp;app=com.android.chrome&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=0"></script>
+<script type="text/javascript" nonce="2845cd21ac494180ba790f6e559" src="//local.adguard.org?ts=1748501856318&amp;name=AdGuard%20Extra&amp;name=%EB%AA%A8%EB%B0%94%EC%9D%BC%20%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%8F%84%EA%B5%AC%20%28%EC%95%A0%EB%93%9C%EA%B0%80%EB%93%9C%20%EA%B0%A4%EB%9F%AC%EB%A6%AC%29&amp;type=user-script"></script><link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="영어 단어 마스터">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .card {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card.flipped {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        
+        .word {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .meaning {
+            font-size: 20px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-correct {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .btn-wrong {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-next {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-restart {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .game-over {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .final-score {
+            font-size: 48px;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        .install-prompt {
+            background: #4ecdc4;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="installPrompt" class="install-prompt hidden">
+            📱 홈 화면에 앱 추가하기
+        </div>
+        
+        <h1>🎯 영어 단어 마스터</h1>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-number" id="currentScore">0</div>
+                <div class="score-label">점수</div>
+            </div>
+            <div class="score-item">
+                <div class="score-number" id="currentCard">1</div>
+                <div class="score-label">카드</div>
+            </div>
+            <div class="score-item">
+                <div class="score-number" id="totalCards">52</div>
+                <div class="score-label">총 개수</div>
+            </div>
+        </div>
+        
+        <div id="gameArea">
+            <div class="card" id="flashCard" onclick="flipCard()">
+                <div class="word" id="cardContent">시작하려면 클릭!</div>
+            </div>
+            
+            <div class="buttons" id="gameButtons">
+                <button class="btn-correct" onclick="markCorrect()">✓ 맞음</button>
+                <button class="btn-wrong" onclick="markWrong()">✗ 틀림</button>
+                <button class="btn-next" onclick="nextCard()">다음 →</button>
+            </div>
+        </div>
+        
+        <div id="gameOverArea" class="game-over hidden">
+            <h2>🎉 게임 완료!</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <p>총 <span id="finalTotal">0</span>개 중 <span id="finalCorrect">0</span>개 정답!</p>
+            <button class="btn-restart" onclick="restartGame()">다시 시작</button>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            {english: "thank", korean: "고마워"},
+            {english: "how", korean: "얼마나"},
+            {english: "purple", korean: "보라색"},
+            {english: "good", korean: "좋은"},
+            {english: "mother", korean: "어머니"},
+            {english: "father", korean: "아버지"},
+            {english: "help", korean: "도와줘!"},
+            {english: "sister", korean: "여자 형제"},
+            {english: "yellow", korean: "노란색"},
+            {english: "orange", korean: "주황색"},
+            {english: "Sunday", korean: "일요일"},
+            {english: "Monday", korean: "월요일"},
+            {english: "Tuesday", korean: "화요일"},
+            {english: "Wednesday", korean: "수요일"},
+            {english: "Thursday", korean: "목요일"},
+            {english: "Friday", korean: "금요일"},
+            {english: "Saturday", korean: "토요일"},
+            {english: "nice", korean: "좋은"},
+            {english: "please", korean: "제발"},
+            {english: "pink", korean: "분홍색"},
+            {english: "me", korean: "나를"},
+            {english: "outside", korean: "밖에"},
+            {english: "nine", korean: "아홉"},
+            {english: "too", korean: "너무"},
+            {english: "eight", korean: "여덟"},
+            {english: "small", korean: "작은"},
+            {english: "green", korean: "초록색"},
+            {english: "tennis", korean: "테니스"},
+            {english: "my", korean: "나의"},
+            {english: "brother", korean: "남자 형제"},
+            {english: "your", korean: "너의"},
+            {english: "his", korean: "그의"},
+            {english: "o'clock", korean: "시~"},
+            {english: "swimming", korean: "수영"},
+            {english: "down", korean: "아래쪽에"},
+            {english: "use", korean: "이용하다"},
+            {english: "wait", korean: "기다리다"},
+            {english: "straight", korean: "똑바로"},
+            {english: "there", korean: "거기"},
+            {english: "where", korean: "어디"},
+            {english: "tall", korean: "긴"},
+            {english: "right", korean: "오른쪽으로"},
+            {english: "singer", korean: "가수"},
+            {english: "uncle", korean: "삼촌"},
+            {english: "teacher", korean: "선생님"},
+            {english: "pretty", korean: "예쁜"},
+            {english: "long", korean: "긴"},
+            {english: "glasses", korean: "안경"},
+            {english: "cute", korean: "귀여운"},
+            {english: "busy", korean: "바쁜"},
+            {english: "lesson", korean: "수업"},
+            {english: "paper", korean: "종이"}
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let isFlipped = false;
+        let gameStarted = false;
+        let shuffledWords = [];
+        let deferredPrompt;
+
+        // PWA 설치 프롬프트
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.remove('hidden');
+        });
+
+        document.getElementById('installPrompt').addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('앱이 설치되었습니다');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').classList.add('hidden');
+                });
+            }
+        });
+
+        // 서비스 워커 등록
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then((registration) => {
+                    console.log('Service Worker 등록 성공:', registration);
+                })
+                .catch((error) => {
+                    console.log('Service Worker 등록 실패:', error);
+                });
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startGame() {
+            shuffledWords = shuffleArray(words);
+            currentIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            gameStarted = true;
+            isFlipped = false;
+            
+            document.getElementById('totalCards').textContent = shuffledWords.length;
+            updateDisplay();
+            showCurrentCard();
+        }
+
+        function showCurrentCard() {
+            if (currentIndex >= shuffledWords.length) {
+                endGame();
+                return;
+            }
+            
+            const card = document.getElementById('flashCard');
+            const content = document.getElementById('cardContent');
+            
+            card.classList.remove('flipped');
+            content.textContent = shuffledWords[currentIndex].english;
+            isFlipped = false;
+            
+            updateDisplay();
+        }
+
+        function flipCard() {
+            if (!gameStarted) {
+                startGame();
+                return;
+            }
+            
+            const card = document.getElementById('flashCard');
+            const content = document.getElementById('cardContent');
+            
+            if (!isFlipped) {
+                card.classList.add('flipped');
+                content.textContent = shuffledWords[currentIndex].korean;
+                isFlipped = true;
+            } else {
+                card.classList.remove('flipped');
+                content.textContent = shuffledWords[currentIndex].english;
+                isFlipped = false;
+            }
+        }
+
+        function markCorrect() {
+            if (!gameStarted || currentIndex >= shuffledWords.length) return;
+            
+            score += 10;
+            correctAnswers++;
+            nextCard();
+        }
+
+        function markWrong() {
+            if (!gameStarted || currentIndex >= shuffledWords.length) return;
+            
+            nextCard();
+        }
+
+        function nextCard() {
+            if (!gameStarted) return;
+            
+            currentIndex++;
+            showCurrentCard();
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('currentCard').textContent = currentIndex + 1;
+            
+            const progress = ((currentIndex) / shuffledWords.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function endGame() {
+            document.getElementById('gameArea').classList.add('hidden');
+            document.getElementById('gameOverArea').classList.remove('hidden');
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalTotal').textContent = shuffledWords.length;
+            document.getElementById('finalCorrect').textContent = correctAnswers;
+        }
+
+        function restartGame() {
+            document.getElementById('gameArea').classList.remove('hidden');
+            document.getElementById('gameOverArea').classList.add('hidden');
+            
+            const content = document.getElementById('cardContent');
+            content.textContent = '시작하려면 클릭!';
+            
+            gameStarted = false;
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        // 초기 설정
+        document.getElementById('totalCards').textContent = words.length;
+    </script>
+</body>
+</html>
